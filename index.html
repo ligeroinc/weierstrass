@@ -6,9 +6,10 @@
   <title>Ligero zkProver Portal</title>
   <style>
     :root {
-      --ligero-blue: #2338ff;
-      --ligero-accent: #2563eb;
+      --ligero-blue: #2563eb;
       --ligero-hover: #1d4ed8;
+      --ligero-verify: #16a34a;
+      --ligero-verify-hover: #15803d;
       --ligero-text-dark: #1e293b;
       --ligero-text-muted: #64748b;
       --ligero-bg-gradient: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
@@ -22,7 +23,6 @@
       color: var(--ligero-text-dark);
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
       text-align: center;
       padding: 2rem;
@@ -31,68 +31,124 @@
     img {
       width: 180px;
       height: auto;
-      margin-bottom: 2.5rem;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
       filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.15));
     }
 
     h1 {
       font-size: 1.6rem;
       font-weight: 600;
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
       color: var(--ligero-text-dark);
     }
 
-    button {
-      background: var(--ligero-accent);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 14px 24px;
-      margin: 12px;
-      width: 360px;
+    .curve-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      width: 380px;
       max-width: 90%;
+      padding: 1.5rem;
+      margin: 1rem;
+    }
+
+    .curve-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    button {
+      flex: 1;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
+      color: white;
       transition: background-color 0.2s ease, transform 0.1s ease;
-      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
     }
 
-    button:hover {
+    .prove-btn {
+      background: var(--ligero-blue);
+    }
+
+    .prove-btn:hover {
       background: var(--ligero-hover);
       transform: translateY(-1px);
-      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25);
+    }
+
+    .verify-btn {
+      background: var(--ligero-verify);
+    }
+
+    .verify-btn:hover {
+      background: var(--ligero-verify-hover);
+      transform: translateY(-1px);
     }
 
     footer {
-      position: absolute;
-      bottom: 1rem;
+      margin-top: auto;
+      padding: 1rem;
       font-size: 0.85rem;
       color: var(--ligero-text-muted);
     }
 
     @media (max-width: 480px) {
-      h1 {
-        font-size: 1.25rem;
+      .curve-card {
+        padding: 1.2rem;
       }
-      button {
-        font-size: 0.95rem;
-        padding: 12px 18px;
+      h1 {
+        font-size: 1.3rem;
+      }
+      .button-row {
+        flex-direction: column;
       }
     }
   </style>
 </head>
 <body>
   <img src="ligerologo.png" alt="Ligero Logo" />
-  <h1>Prove ECDSA Signature Verification</h1>
+  <h1>ECDSA Signature Verification Portal</h1>
 
-  <button onclick="window.open('secp256k1/webgpu_prover.html', '_blank')">
-    secp256k1 Curve
-  </button>
+  <!-- secp256k1 Curve -->
+  <div class="curve-card">
+    <div class="curve-title">secp256k1 Curve</div>
+    <div class="button-row">
+      <button class="prove-btn"
+        onclick="window.open('secp256k1/webgpu_prover.html', '_blank')">
+        Prove
+      </button>
+      <button class="verify-btn"
+        onclick="window.open('secp256k1/webgpu_verifier.html', '_blank')">
+        Verify
+      </button>
+    </div>
+  </div>
 
-  <button onclick="window.open('secp256r1/webgpu_prover.html', '_blank')">
-    secp256r1 Curve
-  </button>
+  <!-- secp256r1 Curve -->
+  <div class="curve-card">
+    <div class="curve-title">secp256r1 Curve</div>
+    <div class="button-row">
+      <button class="prove-btn"
+        onclick="window.open('secp256r1/webgpu_prover.html', '_blank')">
+        Prove
+      </button>
+      <button class="verify-btn"
+        onclick="window.open('secp256r1/webgpu_verifier.html', '_blank')">
+        Verify
+      </button>
+    </div>
+  </div>
 
   <footer>
     © <span id="year"></span> Ligero Inc. • Zero-Knowledge. Real-World.
