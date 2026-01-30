@@ -1,0 +1,1 @@
+  -L"/Users/esil/projects/ligero/src/wasm-libs/lib"  libwebgpu_engine.a liblogging.a libbn254.a libportable_archive.a -lgmp -lgmpxx -lssl -lcrypto -lwabt -lboost_serialization -lboost_iostreams 

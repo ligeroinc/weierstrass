@@ -1,0 +1,2 @@
+/Users/esil/projects/ligero/src/emsdk/upstream/emscripten/emar qc libportable_archive.a CMakeFiles/portable_archive.dir/include/util/boost/portable_binary_iarchive.cpp.o CMakeFiles/portable_archive.dir/include/util/boost/portable_binary_oarchive.cpp.o
+/Users/esil/projects/ligero/src/emsdk/upstream/emscripten/emranlib libportable_archive.a
