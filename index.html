@@ -7,20 +7,19 @@
   <style>
     :root {
       --ligero-blue: #2338ff;
-      --ligero-indigo: #121435;
-      --ligero-gradient: linear-gradient(145deg, #0d0f2b 0%, #1e2368 100%);
-      --ligero-accent: #3b82f6;
-      --ligero-hover: #2563eb;
-      --ligero-text-light: #e5e7eb;
-      --ligero-text-muted: #a0aec0;
+      --ligero-accent: #2563eb;
+      --ligero-hover: #1d4ed8;
+      --ligero-text-dark: #1e293b;
+      --ligero-text-muted: #64748b;
+      --ligero-bg-gradient: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
     }
 
     body {
       margin: 0;
       height: 100vh;
-      background: var(--ligero-gradient);
+      background: var(--ligero-bg-gradient);
       font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: var(--ligero-text-light);
+      color: var(--ligero-text-dark);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -33,14 +32,14 @@
       width: 180px;
       height: auto;
       margin-bottom: 2.5rem;
-      filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
+      filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.15));
     }
 
     h1 {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 600;
       margin-bottom: 2rem;
-      color: var(--ligero-text-light);
+      color: var(--ligero-text-dark);
     }
 
     button {
@@ -56,13 +55,13 @@
       font-weight: 600;
       cursor: pointer;
       transition: background-color 0.2s ease, transform 0.1s ease;
-      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.2);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);
     }
 
     button:hover {
       background: var(--ligero-hover);
       transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(59, 130, 246, 0.3);
+      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25);
     }
 
     footer {
@@ -74,7 +73,7 @@
 
     @media (max-width: 480px) {
       h1 {
-        font-size: 1.2rem;
+        font-size: 1.25rem;
       }
       button {
         font-size: 0.95rem;
@@ -104,5 +103,4 @@
   </script>
 </body>
 </html>
-
 
