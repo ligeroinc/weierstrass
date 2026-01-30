@@ -1,0 +1,2 @@
+/Users/esil/projects/ligero/src/emsdk/upstream/emscripten/emar qc liblogging.a CMakeFiles/logging.dir/include/util/log.cpp.o
+/Users/esil/projects/ligero/src/emsdk/upstream/emscripten/emranlib liblogging.a

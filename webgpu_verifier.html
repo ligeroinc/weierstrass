@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en-us" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ligero Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+      .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+      textarea.emscripten { font-family: monospace; width: 80%; }
+      div.emscripten { text-align: center; }
+      div.emscripten_border { border: 1px solid black; }
+
+      .spinner {
+        height: 50px;
+        width: 50px;
+        margin: 0px auto;
+        -webkit-animation: rotation .8s linear infinite;
+        -moz-animation: rotation .8s linear infinite;
+        -o-animation: rotation .8s linear infinite;
+        animation: rotation 0.8s linear infinite;
+        border-left: 10px solid rgb(0,150,240);
+        border-right: 10px solid rgb(0,150,240);
+        border-bottom: 10px solid rgb(0,150,240);
+        border-top: 10px solid rgb(100,0,200);
+        border-radius: 100%;
+        background-color: rgb(200,100,250);
+      }
+      @-webkit-keyframes rotation {
+        from {-webkit-transform: rotate(0deg);}
+        to {-webkit-transform: rotate(360deg);}
+      }
+      @-moz-keyframes rotation {
+        from {-moz-transform: rotate(0deg);}
+        to {-moz-transform: rotate(360deg);}
+      }
+      @-o-keyframes rotation {
+        from {-o-transform: rotate(0deg);}
+        to {-o-transform: rotate(360deg);}
+      }
+      @keyframes rotation {
+        from {transform: rotate(0deg);}
+        to {transform: rotate(360deg);}
+      }
+
+    </style>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <hr/>
+    <figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
+    <div class="emscripten" id="status">Downloading...</div>
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress" hidden=1></progress>  
+    </div>
+
+    <div class="container">
+      <div style="text-align: center">
+        <h1>ECDSA secp256k1 Verifier</h1>
+      </div>
+    <div class="input-group mb-3">
+      <span class="input-group-text">Message (text)</span>
+      <input type="text" class="form-control" id="message_input" value="############" aria-label="Input" aria-describedby="message_input">
+    </div>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text">Signature in ASN.1 DER encoding (starting with 30 SEQUENCE tag)</span>
+      <input type="text" class="form-control" id="signature_input" value="3006020100020100" aria-label="Input">
+    </div>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text">Public Key in SEC1 65 bytes hex encoding (04, R, S pair in big endian)</span>
+      <input type="text" class="form-control" id="pubkey_input" value="0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" aria-label="Input">
+    </div>
+
+    </div>
+
+    <div class="d-flex justify-content-center">
+	  <button id="verify-button" type="button" class="btn btn-success ms-2">Verify</button>
+    </div>
+    
+    <hr/>
+    <textarea class="emscripten" id="output" rows="16"></textarea>
+    <hr>
+
+    <script>
+      function get_pk_data(input) {
+        let hex = input.toLowerCase()
+
+        // Validate hex
+        if (hex.length % 2 !== 0 || !/^[0-9a-f]+$/.test(hex)) {
+          throw new Error("Public key input is not valid hex");
+        }
+
+        // Must be 65 bytes = 130 hex chars
+        if (hex.length !== 130) {
+          throw new Error("Invalid length of public key input: expected 130 hex characters");
+        }
+
+        // Check SEC1 uncompressed prefix
+        if (hex.slice(0, 2) !== "04") {
+          throw new Error("Invalid SEC1 public key: first byte must be 0x04");
+        }
+
+        // Drop leading 0x04 → return x || y (64 bytes)
+        return hex.slice(2); // 128 hex chars
+      }
+
+      function get_signature_data(input) {
+        let hex = input.toLowerCase();
+        let pos = 0;
+
+        // hex validation
+        if (hex.length % 2 !== 0 || !/^[0-9a-f]+$/.test(hex)) {
+          throw new Error("Invalid signature hex input");
+        }
+
+        function readByte() {
+          if (pos + 2 > hex.length) {
+            throw new Error("Unexpected end of signature input");
+          }
+          const byte = parseInt(hex.slice(pos, pos + 2), 16);
+          pos += 2;
+          return byte;
+        }
+
+        function readBytes(len) {
+          const end = pos + len * 2;
+          if (end > hex.length) {
+            throw new Error("Unexpected end of signature input");
+          }
+          const bytes = hex.slice(pos, end);
+          pos = end;
+          return bytes;
+        }
+
+        // SEQUENCE
+        let seq = readByte()
+        if (seq !== 0x30) {
+          throw new Error("Invalid signature DER: " + seq + ", expected SEQUENCE");
+        }
+
+        const seqLen = readByte();
+        if (seqLen * 2 !== hex.length - pos) {
+          throw new Error("Invalid signature DER: incorrect SEQUENCE length");
+        }
+
+        // INTEGER r
+        if (readByte() !== 0x02) {
+          throw new Error("Invalid signature DER: expected INTEGER (r)");
+        }
+
+        const rLen = readByte();
+        let r = readBytes(rLen);
+        if (r.startsWith("00")) r = r.slice(2);
+
+        // INTEGER s
+        if (readByte() !== 0x02) {
+          throw new Error("Invalid signature DER: expected INTEGER (s)");
+        }
+
+        const sLen = readByte();
+        let s = readBytes(sLen);
+        if (s.startsWith("00")) s = s.slice(2);
+
+        if (r.length > 64 || s.length > 64) {
+          throw new Error("Invalid signature size");
+        }
+
+        return r.padStart(64, "0") + s.padStart(64, "0");
+      }
+    </script>
+
+	<script>
+	  document.getElementById('verify-button').addEventListener('click', function() {
+		  // Create a file input element
+		  var input = document.createElement('input');
+		  input.type = 'file';
+
+		  input.onchange = function(event) {
+			  var file = event.target.files[0];
+			  if (file) {
+				  var reader = new FileReader();
+
+				  reader.onload = function(e) {
+					  var contents = e.target.result;
+
+					  // Write the file contents to Emscripten's filesystem
+					  try {
+						  // Ensure the Emscripten filesystem is initialized
+						  if (typeof FS === 'undefined') {
+							  alert('Emscripten filesystem is not initialized.');
+							  return;
+						  }
+
+						  // Optional: Ensure the directory exists
+						  var dir = '/';
+
+						  // Write the file to Emscripten's filesystem
+						  FS.writeFile('proof_data.gz', new Uint8Array(contents));
+
+						  const message_input = document.getElementById('message_input').value;
+						  const signature_input = document.getElementById('signature_input').value;
+              const pubkey_input = document.getElementById('pubkey_input').value;
+
+						  const args = JSON.stringify({
+							  program: "ecdsa_secp256k1_verify.wasm",
+							  packing: 8192,
+							  'private-indices': [1, 2, 3],
+							  args: [
+								  { str: message_input },
+								  { hex: get_signature_data(signature_input) },
+                  { hex: get_pk_data(pubkey_input) },
+							  ]
+						  });
+
+						  console.log(args);
+
+						  try {
+							  Module.callMain([args]);
+						  } catch (error) {
+							  console.log(`Error calling main\n`);
+						  }
+
+					  } catch (err) {
+						  console.error('Error writing file to Emscripten FS:', err);
+						  alert('Error processing the uploaded file: ' + err.message);
+					  }
+				  };
+
+				  reader.onerror = function(err) {
+					  console.error('FileReader error:', err);
+					  alert('Error reading the file: ' + err.message);
+				  };
+
+				  // Read the file as an ArrayBuffer
+				  reader.readAsArrayBuffer(file);
+			  }
+		  };
+
+		  // Trigger the file input dialog
+		  input.click();
+	  });
+	</script>
+
+    <script type='text/javascript'>
+      var statusElement = document.getElementById('status');
+      var progressElement = document.getElementById('progress');
+      var spinnerElement = document.getElementById('spinner');
+
+      var Module = {
+        print: (function() {
+          var element = document.getElementById('output');
+          if (element) element.value = ''; // clear browser cache
+          return (...args) => {
+            var text = args.join(' ');
+            // These replacements are necessary if you render to raw HTML
+            //text = text.replace(/&/g, "&amp;");
+            //text = text.replace(/</g, "&lt;");
+            //text = text.replace(/>/g, "&gt;");
+            //text = text.replace('\n', '<br>', 'g');
+            console.log(text);
+            if (element) {
+              element.value += text + "\n";
+              element.scrollTop = element.scrollHeight; // focus on bottom
+            }
+          };
+        })(),
+        setStatus: (text) => {
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.last.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var now = Date.now();
+          if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+          Module.setStatus.last.time = now;
+          Module.setStatus.last.text = text;
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2])*100;
+            progressElement.max = parseInt(m[4])*100;
+            progressElement.hidden = false;
+            spinnerElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+            if (!text) spinnerElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: (left) => {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+      };
+      Module.setStatus('Downloading...');
+      window.onerror = () => {
+        Module.setStatus('Exception thrown, see JavaScript console');
+        spinnerElement.style.display = 'none';
+        Module.setStatus = (text) => {
+          if (text) console.error('[post-exception status] ' + text);
+        };
+      };
+    </script>
+    <script async type="text/javascript" src="webgpu_verifier.js"></script>
+  </body>
+</html>

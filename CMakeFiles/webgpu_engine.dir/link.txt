@@ -1,0 +1,2 @@
+/Users/esil/projects/ligero/src/emsdk/upstream/emscripten/emar qc libwebgpu_engine.a CMakeFiles/webgpu_engine.dir/src/webgpu/buffer_binding.cpp.o CMakeFiles/webgpu_engine.dir/src/webgpu/buffer_view.cpp.o CMakeFiles/webgpu_engine.dir/src/webgpu/common.cpp.o CMakeFiles/webgpu_engine.dir/src/webgpu/device_bignum.cpp.o CMakeFiles/webgpu_engine.dir/src/webgpu/device_context.cpp.o CMakeFiles/webgpu_engine.dir/src/webgpu/engine.cpp.o CMakeFiles/webgpu_engine.dir/src/webgpu/powmod_context.cpp.o
+/Users/esil/projects/ligero/src/emsdk/upstream/emscripten/emranlib libwebgpu_engine.a

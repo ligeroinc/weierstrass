@@ -1,0 +1,2 @@
+/Users/esil/projects/ligero/src/emsdk/upstream/emscripten/emar qc libbn254.a CMakeFiles/bn254.dir/src/bn254.cpp.o
+/Users/esil/projects/ligero/src/emsdk/upstream/emscripten/emranlib libbn254.a

@@ -1,0 +1,1 @@
+  -L"/Users/esil/projects/ligero/src/wasm-libs/lib"  "/Users/esil/projects/ligero/src/wasm-libs/lib/libboost_unit_test_framework.a" -lgmp -lgmpxx 
